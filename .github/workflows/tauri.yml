@@ -2,7 +2,7 @@ name: 'publish'
 on:
   push:
     branches:
-      - release
+      - master
 
 jobs:
   publish-tauri:
@@ -34,10 +34,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           tagName: ftcdashboard-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
-          releaseName: 'FtcDashboard v__VERSION__'
+          releaseName: 'FtcDashboard v__VERSION__ DEV'
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
-          prerelease: false
+          prerelease: true
           projectPath: 'FtcDashboard/dash'
           configPath: 'FtcDashboard/dash/src-tauri/tauri.conf.json'
           distPath: 'FtcDashboard/dash/dist'
