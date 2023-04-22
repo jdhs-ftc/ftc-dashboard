@@ -38,7 +38,7 @@ jobs:
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
           prerelease: true
-          projectPath: 'FtcDashboard/dash'
-          configPath: 'FtcDashboard/dash/src-tauri/tauri.conf.json'
-          distPath: 'FtcDashboard/dash/dist'
-        
+          projectPath: './FtcDashboard/dash'
+          configPath: './FtcDashboard/dash/src-tauri/tauri.conf.json'
+          distPath: './FtcDashboard/dash/dist'
+          tauriScript: 'cd ./FtcDashboard/dash || npm run tauri'       
