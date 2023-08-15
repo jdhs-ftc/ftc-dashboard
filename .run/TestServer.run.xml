@@ -2,6 +2,9 @@
   <configuration default="false" name="TestServer" type="Application" factoryName="Application">
     <option name="ALTERNATIVE_JRE_PATH" value="18" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <classpathModifications>
+      <entry path="$USER_HOME$/Downloads" />
+    </classpathModifications>
     <option name="MAIN_CLASS_NAME" value="com.acmerobotics.dashboard.TestServer" />
     <module name="ftc-dashboard.DashboardCore.test" />
     <method v="2">

@@ -1,3 +1,11 @@
+# Tauri version of FTC Dashboard
+
+## Installation
+Download the version for your OS from the releases page and run it.
+
+## Development
+Compile for Tauri with `yarn tauri build` or `cargo-tauri build` in FtcDashboard/dash. Otherwise, same as below
+
 # FTC Dashboard
 
 FTC Dashboard provides telemetry and monitoring tools for FTC robots during operation with the following features:

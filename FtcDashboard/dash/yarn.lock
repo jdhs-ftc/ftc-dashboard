@@ -456,6 +456,32 @@
   dependencies:
     mini-svg-data-uri "^1.2.3"
 
+"@tauri-apps/cli-linux-x64-gnu@1.4.0":
+  version "1.4.0"
+  resolved "https://registry.npmjs.org/@tauri-apps/cli-linux-x64-gnu/-/cli-linux-x64-gnu-1.4.0.tgz"
+  integrity sha512-Zh5gfAJxOv5AVWxcwuueaQ2vIAhlg0d6nZui6nMyfIJ8dbf3aZQ5ZzP38sYow5h/fbvgL+3GSQxZRBIa3c2E1w==
+
+"@tauri-apps/cli-linux-x64-musl@1.4.0":
+  version "1.4.0"
+  resolved "https://registry.npmjs.org/@tauri-apps/cli-linux-x64-musl/-/cli-linux-x64-musl-1.4.0.tgz"
+  integrity sha512-OLAYoICU3FaYiTdBsI+lQTKnDHeMmFMXIApN0M+xGiOkoIOQcV9CConMPjgmJQ867+NHRNgUGlvBEAh9CiJodQ==
+
+"@tauri-apps/cli@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.npmjs.org/@tauri-apps/cli/-/cli-1.4.0.tgz"
+  integrity sha512-VXYr2i2iVFl98etQSQsqLzXgX96bnWiNZd1YADgatqwy/qecbd6Kl5ZAPB5R4ynsgE8A1gU7Fbzh7dCEQYFfmA==
+  optionalDependencies:
+    "@tauri-apps/cli-darwin-arm64" "1.4.0"
+    "@tauri-apps/cli-darwin-x64" "1.4.0"
+    "@tauri-apps/cli-linux-arm-gnueabihf" "1.4.0"
+    "@tauri-apps/cli-linux-arm64-gnu" "1.4.0"
+    "@tauri-apps/cli-linux-arm64-musl" "1.4.0"
+    "@tauri-apps/cli-linux-x64-gnu" "1.4.0"
+    "@tauri-apps/cli-linux-x64-musl" "1.4.0"
+    "@tauri-apps/cli-win32-arm64-msvc" "1.4.0"
+    "@tauri-apps/cli-win32-ia32-msvc" "1.4.0"
+    "@tauri-apps/cli-win32-x64-msvc" "1.4.0"
+
 "@types/estree@^1.0.0":
   version "1.0.0"
   resolved "https://registry.npmjs.org/@types/estree/-/estree-1.0.0.tgz"
@@ -925,9 +951,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001400, caniuse-lite@^1.0.30001426:
-  version "1.0.30001434"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001434.tgz"
-  integrity sha512-aOBHrLmTQw//WFa2rcF1If9fa3ypkC1wzqqiKHgfdrXTWcU8C4gKVZT77eQAPWN1APys3+uQ0Df07rKauXGEYA==
+  version "1.0.30001520"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001520.tgz"
+  integrity sha512-tahF5O9EiiTzwTUqAeFjIZbn4Dnqxzz7ktrgGlMYNLH43Ul26IgTMH/zvL3DG0lZxBYnlT04axvInszUsZULdA==
 
 chalk@^2.0.0:
   version "2.4.2"
