@@ -1,5 +1,4 @@
 import { cloneDeep } from 'lodash';
-import fieldImageName from '@/assets/field.png';
 
 // align coordinate to the nearest pixel, offset by a half pixel
 // this helps with drawing thin lines; e.g., if a line of width 1px
@@ -34,6 +33,7 @@ CanvasRenderingContext2D.prototype.getScalingFactors = function () {
   };
 };
 
+// TODO: Avoid calling getScalingFactors() when we know the scale isn't changing.
 CanvasRenderingContext2D.prototype.fineMoveTo = function (x, y) {
   const { scalingX, scalingY } = this.getScalingFactors();
   this.moveTo(alignCoord(x, scalingX), alignCoord(y, scalingY));
@@ -44,21 +44,33 @@ CanvasRenderingContext2D.prototype.fineLineTo = function (x, y) {
   this.lineTo(alignCoord(x, scalingX), alignCoord(y, scalingY));
 };
 
-// this is a bit of a hack bit it'll have to do
-// it's much better than sticking field renders in requestAnimationFrame()
-const fieldImage = new Image();
+const images = {};
 const fieldsToRender = [];
-let fieldLoaded = false;
-fieldImage.onload = function () {
-  fieldLoaded = true;
-  fieldsToRender.forEach((field) => field.render());
-};
-fieldImage.src = fieldImageName;
+
+function loadImage(src) {
+  if (images[src]) {
+    return images[src];
+  }
+
+  const image = new Image();
+  image.onload = function () {
+    fieldsToRender.forEach((field) => field.render());
+  };
+  image.src = src;
+  images[src] = image;
+  return image;
+}
+
+function adjustTransform(ctx, defaultTransform, altOriginX, altOriginY, altRotation, altScaleX, altScaleY){
+  ctx.setTransform(defaultTransform);
+  ctx.translate(altOriginX, altOriginY);
+  ctx.rotate(altRotation);
+  ctx.scale(altScaleX, altScaleY);
+}
 
 // all dimensions in this file are *CSS* pixels unless otherwise stated
 const DEFAULT_OPTIONS = {
   padding: 15,
-  alpha: 0.25,
   fieldSize: 12 * 12, // inches
   splineSamples: 250,
   gridLineWidth: 1, // device pixels
@@ -66,6 +78,7 @@ const DEFAULT_OPTIONS = {
 };
 
 export default class Field {
+
   constructor(canvas, options) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
@@ -94,7 +107,7 @@ export default class Field {
     const smallerDim = width < height ? width : height;
     const fieldSize = smallerDim - 2 * this.options.padding;
 
-    if (!fieldLoaded && fieldsToRender.indexOf(this) === -1) {
+    if (fieldsToRender.indexOf(this) === -1) {
       fieldsToRender.push(this);
     }
 
@@ -106,56 +119,50 @@ export default class Field {
     );
   }
 
-  renderField(x, y, width, height) {
-    this.ctx.save();
-    this.ctx.globalAlpha = this.options.alpha;
-    this.ctx.drawImage(fieldImage, x, y, width, height);
-    this.ctx.restore();
-
-    this.renderGridLines(x, y, width, height, 7, 7);
-    this.renderOverlay(x, y, width, height);
-  }
-
-  renderGridLines(x, y, width, height, numTicksX, numTicksY) {
-    this.ctx.save();
-
-    this.ctx.strokeStyle = this.options.gridLineColor;
-    this.ctx.lineWidth = this.options.gridLineWidth / devicePixelRatio;
-
-    const horSpacing = width / (numTicksX - 1);
-    const vertSpacing = height / (numTicksY - 1);
-
-    for (let i = 0; i < numTicksX; i++) {
-      const lineX = x + horSpacing * i;
-      this.ctx.beginPath();
-      this.ctx.fineMoveTo(lineX, y);
-      this.ctx.fineLineTo(lineX, y + height);
-      this.ctx.stroke();
-    }
-
-    for (let i = 0; i < numTicksY; i++) {
-      const lineY = y + vertSpacing * i;
-      this.ctx.beginPath();
-      this.ctx.fineMoveTo(x, lineY);
-      this.ctx.fineLineTo(x + width, lineY);
-      this.ctx.stroke();
-    }
-
-    this.ctx.restore();
-  }
-
-  renderOverlay(x, y, width, height) {
+    renderField(x, y, width, height) {
     const o = this.options;
 
     this.ctx.save();
-    this.ctx.translate(x + width / 2, y + height / 2);
-    this.ctx.scale(width / o.fieldSize, -height / o.fieldSize);
-    this.ctx.rotate(Math.PI / 2);
+
+    const originX = x + width / 2;
+    const originY = y + height / 2;
+    const rotation = -Math.PI / 2;
+    var altOriginX = 0;
+    var altOriginY = 0;
+    var altRotation = 0;
+    var altScaleX = 1;
+    var altScaleY = 1;
+
+    var preTransform = this.ctx.getTransform();
+    this.ctx.translate(x, y);
+    this.ctx.scale(width / o.fieldSize, height / o.fieldSize);
+
+    var pageTransform = this.ctx.getTransform(); //this is the scaled page transform in which text and image drawing take place by default
+    this.ctx.setTransform(preTransform);
+    this.ctx.translate(originX, originY);
+    this.ctx.scale(width / o.fieldSize, height / o.fieldSize);
+    this.ctx.rotate(rotation);
+    var defaultTransform = this.ctx.getTransform(); //this is the default transform with the origin in the center of the field with the x axis considered upward on the java side, but negative on the canvas side (here), requiring a negation of all y components
 
     this.ctx.lineCap = 'butt';
 
     this.overlay.ops.forEach((op) => {
       switch (op.type) {
+
+        case 'scale':
+            altScaleX = op.scaleX;
+            altScaleY = op.scaleY;
+            adjustTransform(this.ctx, defaultTransform, altOriginX, altOriginY, altRotation, altScaleX, altScaleY);
+            break;
+        case 'rotation':
+            altRotation = op.rotation;
+            adjustTransform(this.ctx, defaultTransform, altOriginX, altOriginY, altRotation, altScaleX, altScaleY);
+            break;
+        case 'translate':
+            altOriginX=op.x;
+            altOriginY=-op.y;
+            adjustTransform(this.ctx, defaultTransform, altOriginX, altOriginY, altRotation, altScaleX, altScaleY);
+            break;
         case 'fill':
           this.ctx.fillStyle = op.color;
           break;
@@ -167,7 +174,7 @@ export default class Field {
           break;
         case 'circle':
           this.ctx.beginPath();
-          this.ctx.arc(op.x, op.y, op.radius, 0, 2 * Math.PI);
+          this.ctx.arc(op.x, -op.y, op.radius, 0, 2 * Math.PI);
 
           if (op.stroke) {
             this.ctx.stroke();
@@ -178,9 +185,9 @@ export default class Field {
         case 'polygon': {
           this.ctx.beginPath();
           const { xPoints, yPoints, stroke } = op;
-          this.ctx.fineMoveTo(xPoints[0], yPoints[0]);
+          this.ctx.fineMoveTo(xPoints[0], -yPoints[0]);
           for (let i = 1; i < xPoints.length; i++) {
-            this.ctx.fineLineTo(xPoints[i], yPoints[i]);
+            this.ctx.fineLineTo(xPoints[i], -yPoints[i]);
           }
           this.ctx.closePath();
 
@@ -194,9 +201,9 @@ export default class Field {
         case 'polyline': {
           this.ctx.beginPath();
           const { xPoints, yPoints } = op;
-          this.ctx.fineMoveTo(xPoints[0], yPoints[0]);
+          this.ctx.fineMoveTo(xPoints[0], -yPoints[0]);
           for (let i = 1; i < xPoints.length; i++) {
-            this.ctx.fineLineTo(xPoints[i], yPoints[i]);
+            this.ctx.fineLineTo(xPoints[i], -yPoints[i]);
           }
           this.ctx.stroke();
           break;
@@ -204,7 +211,7 @@ export default class Field {
         case 'spline': {
           this.ctx.beginPath();
           const { ax, bx, cx, dx, ex, fx, ay, by, cy, dy, ey, fy } = op;
-          this.ctx.fineMoveTo(fx, fy);
+          this.ctx.fineMoveTo(fx, -fy);
           for (let i = 0; i <= o.splineSamples; i++) {
             const t = i / o.splineSamples;
             const sx =
@@ -220,9 +227,96 @@ export default class Field {
               ey * t +
               fy;
 
-            this.ctx.lineTo(sx, sy);
+            this.ctx.lineTo(sx, -sy);
           }
           this.ctx.stroke();
+          break;
+        }
+        case 'image': {
+          const image = loadImage(op.path);
+          this.ctx.save();
+          if (op.usePageFrame)
+            {
+              this.ctx.setTransform(pageTransform);
+              this.ctx.translate(op.x, op.y);
+            }
+          else //use current transform
+            {
+            this.ctx.translate(op.x, -op.y);
+            }
+          this.ctx.rotate(op.theta, op.pivotX, op.pivotY);
+          this.ctx.drawImage(image, -op.pivotX, -op.pivotY, op.width, op.height);
+          this.ctx.restore();
+          break;
+        }
+        case 'text': {
+            this.ctx.save();
+            this.ctx.font = op.font;
+            if (op.usePageFrame)
+                {
+                this.ctx.setTransform(pageTransform);
+                this.ctx.translate(op.x, op.y);
+                }
+            else //use current transform
+                {
+                this.ctx.translate(op.x, -op.y);
+                }
+            this.ctx.rotate(op.theta);
+            if (op.stroke) {
+                this.ctx.strokeText(op.text, 0, 0)
+            } else {
+                this.ctx.fillText(op.text, 0, 0)
+            }
+            this.ctx.restore();
+            break;
+            }
+        case 'grid': {
+          this.ctx.save();
+            if (op.usePageFrame)
+              {
+                this.ctx.setTransform(pageTransform);
+                this.ctx.translate(op.x + op.pivotX , op.y + op.pivotY);
+              }
+            else //use current transform
+              {
+              this.ctx.translate(op.x, -op.y);
+              }
+            this.ctx.rotate(op.theta, op.pivotX, op.pivotY);
+          this.ctx.strokeStyle = this.options.gridLineColor;
+
+          const horSpacing = op.width / (op.numTicksX - 1);
+          const vertSpacing = op.height / (op.numTicksY - 1);
+
+          const { scalingX, scalingY } = this.ctx.getScalingFactors();
+
+          this.ctx.lineWidth =
+            this.options.gridLineWidth / (scalingY * devicePixelRatio);
+
+          for (let i = 0; i < op.numTicksX; i++) {
+            const lineX = -op.pivotX + horSpacing * i;
+            this.ctx.beginPath();
+            this.ctx.fineMoveTo(lineX, -op.pivotY);
+            this.ctx.fineLineTo(lineX , -op.pivotY + op.height);
+            this.ctx.stroke();
+          }
+
+          this.ctx.lineWidth =
+            this.options.gridLineWidth / (scalingX * devicePixelRatio);
+
+          for (let i = 0; i < op.numTicksY; i++) {
+            const lineY = -op.pivotY + vertSpacing * i;
+            this.ctx.beginPath();
+            this.ctx.fineMoveTo(- op.pivotX, lineY);
+            this.ctx.fineLineTo(- op.pivotX + op.width, lineY);
+            this.ctx.stroke();
+          }
+
+          this.ctx.restore();
+
+          break;
+        }
+        case 'alpha': {
+          this.ctx.globalAlpha = op.alpha;
           break;
         }
         default:

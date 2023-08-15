@@ -5,7 +5,7 @@
  */
 
 buildscript {
-    ext.dashboard_version = '0.4.9'
+    ext.dashboard_version = '0.4.10'
     ext.checkstyle_version = '8.18'
 
     repositories {
@@ -13,6 +13,7 @@ buildscript {
         google()
     }
     dependencies {
+        // Note for FTC Teams: Do not modify this yourself.
         classpath 'com.android.tools.build:gradle:7.2.0'
     }
 }
@@ -28,8 +29,4 @@ allprojects {
 
 repositories {
     mavenCentral()
-
-    flatDir {
-        dirs '../libs'
-    }
 }
