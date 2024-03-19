@@ -12,6 +12,7 @@ import { BasicVar, BasicVarState } from '@/store/types/config';
 
 type Props = {
   name: string;
+  path: string;
   state: BasicVarState;
   onChange: (state: BasicVarState) => void;
   onSave: (state: BasicVar) => void;
@@ -19,7 +20,7 @@ type Props = {
 
 class BasicVariable extends React.Component<Props> {
   render() {
-    const { name, state } = this.props;
+    const { name, path, state } = this.props;
 
     const modified = state.__value !== state.__newValue;
 
@@ -60,9 +61,11 @@ class BasicVariable extends React.Component<Props> {
     } else {
       switch (state.__type) {
         case 'int':
+        case 'long':
           input = (
             <TextInput
-              value={state.__newValue}
+              id={path}
+              value={state.__newValue as number | string}
               valid={state.__valid}
               validate={validateInt}
               onChange={onChange}
@@ -70,6 +73,7 @@ class BasicVariable extends React.Component<Props> {
             />
           );
           break;
+        case 'float':
         case 'double':
           if (typeof state.__value === 'string') {
             input = <p>{state.__value}</p>;
@@ -82,7 +86,8 @@ class BasicVariable extends React.Component<Props> {
                 }}
               >
                 <TextInput
-                  value={state.__newValue}
+                  id={path}
+                  value={state.__newValue as number | string}
                   valid={state.__valid}
                   validate={validateDouble}
                   onChange={onChange}
@@ -105,7 +110,8 @@ class BasicVariable extends React.Component<Props> {
         case 'string':
           input = (
             <TextInput
-              value={state.__newValue}
+              id={path}
+              value={state.__newValue as number | string}
               valid={state.__valid}
               validate={validateString}
               onChange={onChange}
@@ -116,6 +122,7 @@ class BasicVariable extends React.Component<Props> {
         case 'boolean':
           input = (
             <BooleanInput
+              id={path}
               value={state.__newValue as boolean}
               onChange={onChange}
               onSave={onSave}
@@ -125,6 +132,7 @@ class BasicVariable extends React.Component<Props> {
         case 'enum':
           input = (
             <EnumInput
+              id={path}
               value={state.__newValue as string}
               enumValues={state.__enumValues}
               onChange={onChange}
@@ -138,22 +146,24 @@ class BasicVariable extends React.Component<Props> {
     return (
       <tr>
         <td>
-          <span
-            style={
-              modified
-                ? {
-                    userSelect: 'auto',
-                    opacity: 1.0,
-                  }
-                : {
-                    userSelect: 'none',
-                    opacity: 0.0,
-                  }
-            }
-          >
-            *
-          </span>
-          {name}
+          <label htmlFor={path}>
+            <span
+              style={
+                modified
+                  ? {
+                      userSelect: 'auto',
+                      opacity: 1.0,
+                    }
+                  : {
+                      userSelect: 'none',
+                      opacity: 0.0,
+                    }
+              }
+            >
+              *
+            </span>
+            {name}
+          </label>
         </td>
         <td>{input}</td>
       </tr>

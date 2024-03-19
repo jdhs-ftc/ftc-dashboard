@@ -1,7 +1,6 @@
 package com.acmerobotics.dashboard.telemetry;
 
 import com.acmerobotics.dashboard.canvas.Canvas;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,12 +15,14 @@ public class TelemetryPacket {
     private long timestamp;
     private SortedMap<String, String> data;
     private List<String> log;
+    private Canvas field;
     private Canvas fieldOverlay;
 
     private static final Canvas DEFAULT_FIELD = new Canvas();
+
     static {
-        DEFAULT_FIELD.setAlpha(0.25);
-        DEFAULT_FIELD.drawImage("/dash/centerstage.png", 0, 0, 144, 144);
+        DEFAULT_FIELD.setAlpha(0.4);
+        DEFAULT_FIELD.drawImage("/dash/centerstage.webp", 0, 0, 144, 144);
         DEFAULT_FIELD.setAlpha(1.0);
         DEFAULT_FIELD.drawGrid(0, 0, 144, 144, 7, 7);
     }
@@ -32,10 +33,11 @@ public class TelemetryPacket {
     public TelemetryPacket(boolean drawDefaultField) {
         data = new TreeMap<>();
         log = new ArrayList<>();
+        field = new Canvas();
         fieldOverlay = new Canvas();
 
         if (drawDefaultField) {
-            fieldOverlay.getOperations().addAll(DEFAULT_FIELD.getOperations());
+            field.getOperations().addAll(DEFAULT_FIELD.getOperations());
         }
     }
 
@@ -45,6 +47,7 @@ public class TelemetryPacket {
 
     /**
      * Stores a single key-value pair.
+     *
      * @param key
      * @param value
      */
@@ -54,6 +57,7 @@ public class TelemetryPacket {
 
     /**
      * Stores all entries of the provided map.
+     *
      * @param map
      */
     public void putAll(Map<String, Object> map) {
@@ -64,6 +68,7 @@ public class TelemetryPacket {
 
     /**
      * Adds a line to the telemetry log.
+     *
      * @param line
      */
     public void addLine(String line) {
@@ -91,5 +96,9 @@ public class TelemetryPacket {
      */
     public Canvas fieldOverlay() {
         return fieldOverlay;
+    }
+
+    public Canvas field() {
+        return field;
     }
 }

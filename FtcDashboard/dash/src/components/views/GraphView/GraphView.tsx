@@ -19,19 +19,17 @@ import { ReactComponent as PlayIcon } from '@/assets/icons/play_arrow.svg';
 import { ReactComponent as PauseIcon } from '@/assets/icons/pause.svg';
 
 import { RootState } from '@/store/reducers';
-import { validateInt } from '@/components/views/ConfigView/inputs/validation';
 import { colors, ThemeConsumer } from '@/hooks/useTheme';
 import { DEFAULT_OPTIONS } from './Graph';
+import { validateInt, ValResult } from '@/components/inputs/validation';
 
 type GraphViewState = {
   graphing: boolean;
   paused: boolean;
+  pausedTime: number;
   availableKeys: string[];
   selectedKeys: string[];
-  windowMs: {
-    value: number;
-    valid: boolean;
-  };
+  windowMs: ValResult<number>;
 };
 
 const mapStateToProps = (state: RootState) => ({
@@ -53,6 +51,7 @@ class GraphView extends Component<GraphViewProps, GraphViewState> {
     this.state = {
       graphing: false,
       paused: false,
+      pausedTime: 0,
       availableKeys: [],
       selectedKeys: [],
       windowMs: {
@@ -121,6 +120,7 @@ class GraphView extends Component<GraphViewProps, GraphViewState> {
       this.setState({
         ...this.state,
         paused: !this.state.paused,
+        pausedTime: Date.now(),
       });
     }
   }
@@ -144,6 +144,7 @@ class GraphView extends Component<GraphViewProps, GraphViewState> {
     this.setState({
       ...this.state,
       paused: true,
+      pausedTime: Date.now(),
     });
   }
 
@@ -189,7 +190,10 @@ class GraphView extends Component<GraphViewProps, GraphViewState> {
           </BaseViewHeading>
           <BaseViewIcons>
             {this.state.graphing && this.state.selectedKeys.length !== 0 && (
-              <BaseViewIconButton className="icon-btn h-8 w-8">
+              <BaseViewIconButton
+                title={this.state.paused ? 'Resume Graphing' : 'Pause Graphing'}
+                className="icon-btn h-8 w-8"
+              >
                 {this.state.paused ? (
                   <PlayIcon className="h-6 w-6" onClick={this.play} />
                 ) : (
@@ -198,7 +202,9 @@ class GraphView extends Component<GraphViewProps, GraphViewState> {
               </BaseViewIconButton>
             )}
 
-            <BaseViewIconButton>
+            <BaseViewIconButton
+              title={this.state.graphing ? 'Stop Graphing' : 'Start Graphing'}
+            >
               {this.state.graphing ? (
                 <CloseIcon className="h-6 w-6" onClick={this.stop} />
               ) : (
@@ -242,18 +248,9 @@ class GraphView extends Component<GraphViewProps, GraphViewState> {
                               value={this.state.windowMs.value}
                               valid={this.state.windowMs.valid}
                               validate={validateInt}
-                              onChange={({
-                                value,
-                                valid,
-                              }: {
-                                value: number;
-                                valid: boolean;
-                              }) =>
+                              onChange={(arg) =>
                                 this.setState({
-                                  windowMs: {
-                                    value,
-                                    valid,
-                                  },
+                                  windowMs: arg,
                                 })
                               }
                             />
@@ -286,6 +283,7 @@ class GraphView extends Component<GraphViewProps, GraphViewState> {
                       : colors.gray[900],
                   }}
                   paused={this.state.paused}
+                  pausedTime={this.state.pausedTime}
                 />
               )}
             </ThemeConsumer>

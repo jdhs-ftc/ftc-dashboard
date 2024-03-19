@@ -72,6 +72,7 @@ function validAndModified(state: ConfigVarState): ConfigVar | null {
 type ConfigViewProps = BaseViewProps & BaseViewHeadingProps;
 
 const ConfigView = ({
+  id,
   isDraggable = false,
   isUnlocked = false,
 }: ConfigViewProps) => {
@@ -97,6 +98,7 @@ const ConfigView = ({
         </BaseViewHeading>
         <BaseViewIcons>
           <BaseViewIconButton
+            title="Save Changes"
             onClick={() => {
               const configDiff = validAndModified(configRoot);
               if (configDiff != null) {
@@ -110,6 +112,7 @@ const ConfigView = ({
             <SaveIcon className="h-6 w-6" />
           </BaseViewIconButton>
           <BaseViewIconButton
+            title="Reload Values"
             onClick={() =>
               dispatch({
                 type: 'REFRESH_CONFIG',
@@ -127,6 +130,7 @@ const ConfigView = ({
               <CustomVariable
                 key={key}
                 name={key}
+                path={id ? `${id}.${key}` : key}
                 // invariant 2: children of the root are custom
                 state={rootValue[key] as CustomVarState}
                 onChange={(newState) =>

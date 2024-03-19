@@ -30,14 +30,14 @@ Check out our [online documentation](https://acmerobotics.github.io/ftc-dashboar
 
 1. Open [`build.dependencies.gradle`](https://github.com/FIRST-Tech-Challenge/FtcRobotController/blob/master/build.dependencies.gradle)
 2. In the `repositories` section, add `maven { url = 'https://maven.brott.dev/' }`
-3. In the `dependencies` section, add `implementation 'com.acmerobotics.dashboard:dashboard:0.4.12'`
+3. In the `dependencies` section, add `implementation 'com.acmerobotics.dashboard:dashboard:0.4.15'`
 
     Please see [GitHub releases page](https://github.com/acmerobotics/ftc-dashboard/releases) for the latest version number
 
 4. If you’re using OpenRC or have non-standard SDK dependencies, add the following exclusion:
 
     ```
-    implementation('com.acmerobotics.dashboard:dashboard:0.4.12') {
+    implementation('com.acmerobotics.dashboard:dashboard:0.4.15') {
       exclude group: 'org.firstinspires.ftc'
     }
     ```
@@ -49,7 +49,7 @@ Check out our [online documentation](https://acmerobotics.github.io/ftc-dashboar
 1. Install Node.js
 
    - Note: Node.js 16+ is required for builds to work on M1 MacBooks
-   - Current Node version used in gradle builds can be found in [FtcDashboard/build.gradle](https://github.com/acmerobotics/ftc-dashboard/blob/8ac8b29257dede5f4a13c440fe6756efc270cbb8/FtcDashboard/build.gradle#L4)
+   - Current Node version used in gradle builds can be found in [FtcDashboard/build.gradle](https://github.com/acmerobotics/ftc-dashboard/blob/master/FtcDashboard/build.gradle#L33)
    - Node version is `18.12.1` as of time of writing
 
 2. Install Yarn

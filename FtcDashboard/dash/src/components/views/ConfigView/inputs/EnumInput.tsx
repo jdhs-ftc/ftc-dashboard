@@ -1,8 +1,23 @@
-import PropTypes from 'prop-types';
+import React from 'react';
 
-const EnumInput = ({ value, enumValues, onChange, onSave }) => (
+interface Props {
+  id: string;
+  value: string;
+  enumValues: string[];
+  onChange: (arg: { value: string; valid: boolean }) => void;
+  onSave: () => void;
+}
+
+const EnumInput: React.FC<Props> = ({
+  id,
+  value,
+  enumValues,
+  onChange,
+  onSave,
+}) => (
   <span>
     <select
+      id={id}
       className={`
         valid focus: mr-4 rounded border border-gray-300
         bg-gray-100 py-0
@@ -35,12 +50,5 @@ const EnumInput = ({ value, enumValues, onChange, onSave }) => (
     </button>
   </span>
 );
-
-EnumInput.propTypes = {
-  value: PropTypes.string.isRequired,
-  enumValues: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onChange: PropTypes.func.isRequired,
-  onSave: PropTypes.func.isRequired,
-};
 
 export default EnumInput;

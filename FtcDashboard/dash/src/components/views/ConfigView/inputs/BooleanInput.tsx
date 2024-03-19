@@ -1,8 +1,16 @@
-import PropTypes from 'prop-types';
+import React from 'react';
 
-const BooleanInput = ({ value, onChange, onSave }) => (
+interface Props {
+  id: string;
+  value: boolean;
+  onChange: (arg: { value: boolean; valid: boolean }) => void;
+  onSave: () => void;
+}
+
+const BooleanInput: React.FC<Props> = ({ id, value, onChange, onSave }) => (
   <span className="flex items-center">
     <input
+      id={id}
       className="mr-4 rounded text-primary-600 transition hover:border-gray-900 hover:shadow focus:ring-primary-600 dark:ring-offset-slate-100/40"
       type="checkbox"
       checked={value}
@@ -25,11 +33,5 @@ const BooleanInput = ({ value, onChange, onSave }) => (
     </button>
   </span>
 );
-
-BooleanInput.propTypes = {
-  value: PropTypes.bool.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onSave: PropTypes.func.isRequired,
-};
 
 export default BooleanInput;
